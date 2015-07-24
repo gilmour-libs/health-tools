@@ -12,34 +12,20 @@ import (
 const BLANK = ""
 const GilmourHealthKey = "gilmour.known_host.health"
 
-func errExit(err error) {
-	fmt.Println(err)
-	os.Exit(2)
-}
-
 func newRedisPool(host string, port int) *redis.Pool {
 	return backends.GetPool(fmt.Sprintf("%v:%v", host, port))
 }
 
-func removeKey(pool *redis.Pool, ident string) {
+func removeKey(pool *redis.Pool, ident string) (int, error) {
 	if ident == BLANK {
 		err := errors.New("Identifier to remove cannot be blank")
-		errExit(err)
+		return 0, err
 	}
 
 	conn := pool.Get()
 	defer conn.Close()
 
-	n, err := redis.Int(conn.Do("HDEL", GilmourHealthKey, ident))
-	if err != nil {
-		errExit(err)
-	}
-
-	if n > 0 {
-		fmt.Printf("%v has been unsubscribed from health checks.\n", ident)
-	} else {
-		fmt.Printf("%v is not a registered host entry\n", ident)
-	}
+	return redis.Int(conn.Do("HDEL", GilmourHealthKey, ident))
 }
 
 func makeIdent(ident *string) {
@@ -62,6 +48,21 @@ func main() {
 	flag.Parse()
 
 	pool := newRedisPool(redis_host, redis_port)
-	removeKey(pool, ident)
-	os.Exit(0) //Exit cleanly
+	n, err := removeKey(pool, ident)
+
+	var status int
+	var message string
+
+	if err != nil {
+		message = err.Error()
+		status = 2
+	} else if n > 0 {
+		message = fmt.Sprintf("Host %v has been unregistered.", ident)
+	} else {
+		status = 1
+		message = fmt.Sprintf("Host %v could not be found", ident)
+	}
+
+	fmt.Println(message)
+	os.Exit(status)
 }
