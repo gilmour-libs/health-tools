@@ -8,7 +8,7 @@ services:
 
 env:
   global:
-    - ARTIFACT_PATH="https://api.bintray.com/content/gilmour/gilmour-tools/ignore_host/linux_64"
+    - ARTIFACT_PATH="https://api.bintray.com/content/gilmour/gilmour-tools/ignore_host"
 
 
 go: tip
