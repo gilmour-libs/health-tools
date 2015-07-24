@@ -19,6 +19,6 @@ script:
 
 after_success:
   - curl -T redis_pop -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/$TRAVIS_JOB_NUMBER/ignore_host
-  - curl -T redis_pop -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/latest/ignore_host
+  - curl -T redis_pop -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/latest/ignore_host?override=1
   - curl -XPOST -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/$TRAVIS_JOB_NUMBER/publish
   - curl -XPOST -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/latest/publish
