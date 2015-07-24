@@ -7,9 +7,11 @@ services:
   - redis-server
 
 env:
+  global:
+    - ARTIFACT_PATH="https://api.bintray.com/content/gilmour/gilmour-tools/ignore_host"
   - GIMME_OS=linux GIMME_ARCH=amd64
   - GIMME_OS=darwin GIMME_ARCH=amd64
-  - ARTIFACT_PATH="https://api.bintray.com/content/gilmour/gilmour-tools/ignore_host"
+
 
 go: tip
 
