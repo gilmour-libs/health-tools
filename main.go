@@ -4,7 +4,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"gopkg.in/redis.v3"
+	"github.com/garyburd/redigo/redis"
+	"gopkg.in/gilmour-libs/gilmour-e-go.v0/backends"
 	"os"
 )
 
@@ -16,37 +17,29 @@ func errExit(err error) {
 	os.Exit(2)
 }
 
-func newRedisClient(host string, port int) *redis.Client {
-	// Create a new Redis connection.
-	// If the ping errors out, prpgram will exit with status code 2
-
-	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%v:%v", host, port),
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-
-	_, err := client.Ping().Result()
-	if err != nil {
-		errExit(err)
-	}
-
-	return client
+func newRedisPool(host string, port int) *redis.Pool {
+	return backends.GetPool(fmt.Sprintf("%v:%v", host, port))
 }
 
-func removeKey(client *redis.Client, ident string) {
+func removeKey(pool *redis.Pool, ident string) {
 	if ident == BLANK {
 		err := errors.New("Identifier to remove cannot be blank")
 		errExit(err)
 	}
 
-	intCmd := client.HDel(GilmourHealthKey, ident)
-	err := intCmd.Err()
+	conn := pool.Get()
+	defer conn.Close()
+
+	n, err := redis.Int(conn.Do("HDEL", GilmourHealthKey, ident))
 	if err != nil {
 		errExit(err)
 	}
 
-	fmt.Printf("%v was successfully removed\n", ident)
+	if n > 0 {
+		fmt.Printf("%v has been unsubscribed from health checks.\n", ident)
+	} else {
+		fmt.Printf("%v is not a registered host entry\n", ident)
+	}
 }
 
 func makeIdent(ident *string) {
@@ -68,7 +61,7 @@ func main() {
 
 	flag.Parse()
 
-	client := newRedisClient(redis_host, redis_port)
-	removeKey(client, ident)
+	pool := newRedisPool(redis_host, redis_port)
+	removeKey(pool, ident)
 	os.Exit(0) //Exit cleanly
 }
