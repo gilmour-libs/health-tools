@@ -7,8 +7,9 @@ services:
   - redis-server
 
 env:
-  global:
-    - ARTIFACT_PATH="https://api.bintray.com/content/gilmour/gilmour-tools/ignore_host"
+  - GIMME_OS=linux GIMME_ARCH=amd64
+  - GIMME_OS=darwin GIMME_ARCH=amd64
+  - ARTIFACT_PATH="https://api.bintray.com/content/gilmour/gilmour-tools/ignore_host"
 
 go: tip
 
@@ -17,7 +18,7 @@ script:
   - go build -o redis_pop main.go
 
 after_success:
-  - curl -T redis_pop -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/$TRAVIS_JOB_NUMBER/ignore_host
-  - curl -T redis_pop -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/latest/ignore_host
-  - curl -XPOST -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/$TRAVIS_JOB_NUMBER/publish
-  - curl -XPOST -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/latest/publish
+  - curl -T redis_pop -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/$GIMME_OS_$GIMME_ARCH/$TRAVIS_JOB_NUMBER/ignore_host
+  - curl -T redis_pop -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/$GIMME_OS_$GIMME_ARCH/latest/ignore_host
+  - curl -XPOST -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/$GIMME_OS_$GIMME_ARCH/$TRAVIS_JOB_NUMBER/publish
+  - curl -XPOST -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/$GIMME_OS_$GIMME_ARCH/latest/publish
