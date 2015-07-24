@@ -9,3 +9,4 @@ after_success:
   - curl -T redis_pop -umeson10:$BINTRAY_KEY https://api.bintray.com/content/gilmour/gilmour-tools/ignore_host/$TRAVIS_JOB_NUMBER/ignore_host
   - curl -T redis_pop -umeson10:$BINTRAY_KEY https://api.bintray.com/content/gilmour/gilmour-tools/ignore_host/latest/ignore_host
   - curl -XPOST -umeson10:$BINTRAY_KEY https://api.bintray.com/content/gilmour/gilmour-tools/ignore_host/$TRAVIS_JOB_NUMBER/publish
+  - curl -XPOST -umeson10:$BINTRAY_KEY https://api.bintray.com/content/gilmour/gilmour-tools/ignore_host/latest/publish
