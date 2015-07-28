@@ -20,11 +20,6 @@ go:
 services:
   - redis-server
 
-env:
-  global:
-    - ARTIFACT_PATH="https://api.bintray.com/content/gilmour/gilmour-tools/ignore_host"
-
-
 go: tip
 
 script:
