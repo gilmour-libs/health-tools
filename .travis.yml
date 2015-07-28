@@ -1,5 +1,19 @@
 language: go
 
+env:
+  global:
+    #- PATH=$HOME/gopath/bin:$HOME/bin:$PATH
+    #- ARTIFACTS_WORKING_DIR: $HOME/gopath/bin
+    - ARTIFACTS_TARGET_PATHS="$TRAVIS_BRANCH/$TRAVIS_JOB_NUMBER:$TRAVIS_BRANCH/latest"
+    - ARTIFACTS_PERMISSIONS=public-read
+    - ARTIFACTS_CACHE_CONTROL='public, max-age=315360000'
+    - ARTIFACTS_LOG_FORMAT=multiline
+    - ARTIFACTS_DEBUG=1
+
+before_script:
+  - curl -sL https://raw.githubusercontent.com/travis-ci/artifacts/master/install | bash
+
+
 go:
   - tip
 
@@ -15,10 +29,7 @@ go: tip
 
 script:
   - go test -v ./...
-  - go build -o redis_pop main.go
+  - go build -o ignore_host main.go
 
 after_success:
-  - curl -T redis_pop -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/$TRAVIS_JOB_NUMBER/ignore_host
-  - curl -T redis_pop -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/latest/ignore_host?override=1
-  - curl -XPOST -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/$TRAVIS_JOB_NUMBER/publish
-  - curl -XPOST -umeson10:$BINTRAY_KEY $ARTIFACT_PATH/latest/publish
+  - artifacts upload ignore_host
